@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { BrowserRouter } from 'react-router-dom';
 import { MantineProvider } from "@mantine/core"
 import AppShellLayout from "./core/components/AppShell"
@@ -5,6 +6,10 @@ import AppShellLayout from "./core/components/AppShell"
 import '../src/assets/icons/style.css'
 
 function App() {
+
+  useEffect(() => {
+    localStorage.setItem("isClicked", "no")
+  }, [])
 
   return (
     <div className="App">

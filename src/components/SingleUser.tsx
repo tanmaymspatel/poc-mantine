@@ -1,6 +1,7 @@
 import { Badge, Button, Card, Group, Image, MediaQuery, Text, createStyles } from '@mantine/core';
-import { NavLink, useNavigate } from 'react-router-dom';
-import react, { useEffect, useState } from 'react';
+import { NavLink, useHref, useNavigate } from 'react-router-dom';
+import react, { useEffect, useState, useRef } from 'react';
+import { log } from 'console';
 
 const useStyle = createStyles(() => ({
     text_ellipsis: {
@@ -9,25 +10,36 @@ const useStyle = createStyles(() => ({
         whiteSpace: "nowrap",
         width: "300px"
     },
+
 }))
 
-const SingleUser = ({ user, isGridView }: any) => {
+const SingleUser = react.forwardRef(({ user, isGridView, }: any, ref: any) => {
 
     const { classes } = useStyle();
     const navigate = useNavigate();
+    // const [elRef, setelREf] = useState<any>()
+
+    const elementRef = useRef<any>();
+    let clickedElement: any;
 
     const navigateToDetails = (id: number, e: any) => {
         navigate(`${id}`);
-        console.log(e.target);
-        localStorage.setItem("ypos", (e.target.getBoundingClientRect().y));
+        console.log(document.getElementById(`td-${id}`));
+        clickedElement = (document.getElementById(`td-${id}`));
+        // console.log(clickedElement);
+        localStorage.setItem("clickedElement", clickedElement.outerHTML);
+        localStorage.setItem("id", JSON.stringify(id));
+        localStorage.setItem("isClicked", "yes");
+        localStorage.setItem("ypos", (elementRef.current.getBoundingClientRect().y));
     }
 
-    return (
-        <tr data-item="true" style={isGridView ? { display: "flex" } : {}} onClick={(e) => navigateToDetails(user?.id, e)}>
+
+    const body = (
+        <>
             {!isGridView &&
                 <>
                     <td >{user.id}</td>
-                    <td style={{ cursor: "pointer" }} >{user.title}</td>
+                    <td ref={elementRef} id={`td-${user.id}`} style={{ cursor: "pointer" }} >{user.title}</td>
                     <td>{user.userId}</td>
                     <td>{user.completed ? "YES" : "NO"}</td>
                 </>
@@ -64,12 +76,14 @@ const SingleUser = ({ user, isGridView }: any) => {
                     </td>
                 </MediaQuery>
             }
-        </tr>
+        </>
     )
 
-    // const content =
-    //     <tr data-item="true" style={isGridView ? { display: "flex" } : {}} onClick={(e) => navigateToDetails(user?.id, e)}>{body}</tr>
+    const content = ref
+        ? <tr ref={ref} data-item="true" style={isGridView ? { display: "flex" } : {}} onClick={(e) => navigateToDetails(user?.id, e)}>{body}</tr>
+        : <tr data-item="true" style={isGridView ? { display: "flex" } : {}} onClick={(e) => navigateToDetails(user?.id, e)}>{body}</tr>
 
-    // return content
-}
-export default SingleUser;
+    return content
+})
+
+export default SingleUser
